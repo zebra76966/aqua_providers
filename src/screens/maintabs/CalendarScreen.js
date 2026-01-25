@@ -126,8 +126,12 @@ const CalendarScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
+      <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }], flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
         <Text style={styles.title}>Calendar</Text>
+
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("ConsultantAvailability")} disabled={isLoading}>
+          {isLoading ? <ActivityIndicator color="#004d40" /> : <Text style={styles.buttonText}>Set Availability</Text>}
+        </TouchableOpacity>
       </Animated.View>
 
       <View style={styles.filters}>
@@ -330,5 +334,16 @@ const styles = StyleSheet.create({
   chipText: {
     fontSize: 12,
     color: "#050505",
+  },
+  button: {
+    backgroundColor: "#a580e9",
+    padding: 10,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#ffffff",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });

@@ -3,6 +3,7 @@
     "name": "AquaProviders",
     "slug": "AquaProviders",
     "version": "1.0.0",
+    "scheme": "aquaProviders",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -20,10 +21,16 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.zebra76966.AquaProviders"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "6606614f-8353-4925-a404-eab1339ae2a9"
+      }
     }
   }
 }

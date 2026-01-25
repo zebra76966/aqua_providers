@@ -5,7 +5,7 @@ import { baseUrl } from "../../config";
 import { AuthContext } from "../../authcontext";
 
 const BusinessProfileScreen = ({ navigation }) => {
-  const { token } = useContext(AuthContext);
+  const { token, role } = useContext(AuthContext);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
@@ -131,32 +131,32 @@ const BusinessProfileScreen = ({ navigation }) => {
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Business Info</Text>
 
-          <TextInput style={styles.input} placeholder="Company Name" value={companyName} onChangeText={setCompanyName} />
-          <TextInput style={[styles.input, { height: 80 }]} placeholder="Short bio" value={bio} onChangeText={setBio} multiline />
+          <TextInput editable={false} style={[styles.input, styles.readOnly]} placeholder="Company Name" value={companyName} onChangeText={setCompanyName} />
+          <TextInput editable={false} style={[styles.input, { height: 80 }, styles.readOnly]} placeholder="Short bio" value={bio} onChangeText={setBio} multiline />
         </View>
 
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Online Presence</Text>
 
-          <TextInput style={styles.input} placeholder="Website" value={website} onChangeText={setWebsite} />
-          <TextInput style={styles.input} placeholder="Instagram" value={instagram} onChangeText={setInstagram} />
-          <TextInput style={styles.input} placeholder="Facebook" value={facebook} onChangeText={setFacebook} />
+          <TextInput editable={false} style={[styles.input, styles.readOnly]} placeholder="Website" value={website} onChangeText={setWebsite} />
+          <TextInput editable={false} style={[styles.input, styles.readOnly]} placeholder="Instagram" value={instagram} onChangeText={setInstagram} />
+          <TextInput editable={false} style={[styles.input, styles.readOnly]} placeholder="Facebook" value={facebook} onChangeText={setFacebook} />
         </View>
 
-        <View style={styles.card}>
+        {/* <View style={styles.card}>
           <Text style={styles.sectionTitle}>Policies & Automation</Text>
 
-          <TextInput style={[styles.input, { height: 70 }]} placeholder="Cancellation policy" value={policy} onChangeText={setPolicy} multiline />
+          <TextInput  style={[styles.input, { height: 70 }]} placeholder="Cancellation policy" value={policy} onChangeText={setPolicy} multiline />
 
           <View style={styles.switchRow}>
             <Text style={styles.switchLabel}>Auto-accept bookings</Text>
             <Switch value={autoAccept} onValueChange={setAutoAccept} />
           </View>
-        </View>
+        </View> */}
 
-        <TouchableOpacity style={styles.button} onPress={handleSave} disabled={saving}>
+        {/* <TouchableOpacity style={styles.button} onPress={handleSave} disabled={saving}>
           {saving ? <ActivityIndicator color="#004d40" /> : <Text style={styles.buttonText}>Save Business</Text>}
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </Animated.View>
     </ScrollView>
   );
@@ -234,5 +234,8 @@ const styles = StyleSheet.create({
     color: "#004d40",
     fontWeight: "bold",
     fontSize: 16,
+  },
+  readOnly: {
+    backgroundColor: "#f3f3f3",
   },
 });

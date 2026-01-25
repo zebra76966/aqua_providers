@@ -1,53 +1,88 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, ActivityIndicator, Animated, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, ActivityIndicator, Animated, Alert, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { baseUrl } from "../config";
 import { AuthContext } from "../authcontext";
 import { useFocusEffect } from "@react-navigation/native";
 
 const ApplicationStatusScreen = ({ navigation }) => {
-  const { token } = useContext(AuthContext);
+  const { token, logout, setRole, role } = useContext(AuthContext);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
 
   const [isLoading, setIsLoading] = useState(true);
-  const [status, setStatus] = useState(null);
-  const [message, setMessage] = useState("");
+
   const [error, setError] = useState("");
   const [showRolePicker, setShowRolePicker] = useState(false);
+
+  const [consultantStatus, setConsultantStatus] = useState(null);
+  const [breederStatus, setBreederStatus] = useState(null);
+  const [consultantMsg, setConsultantMsg] = useState("");
+  const [breederMsg, setBreederMsg] = useState("");
+
+  const [roleSelector, setRoleSelector] = useState(false);
+
+  const handleLogout = () => {
+    Alert.alert("Logout", "Are you sure?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Logout",
+        style: "destructive",
+        onPress: async () => {
+          await logout();
+          navigation.reset({ index: 0, routes: [{ name: "Login" }] });
+        },
+      },
+    ]);
+  };
 
   const fetchStatus = async () => {
     try {
       setIsLoading(true);
 
-      const res = await fetch(`${baseUrl}/consultants/application/status/`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const [cRes, bRes] = await Promise.all([
+        fetch(`${baseUrl}/consultants/application/status/`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch(`${baseUrl}/breeders/application/status/`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
 
-      const json = await res.json();
-      console.log("Application status:", json);
-
-      if (!res.ok) {
-        if (json.message == "No consultant profile found") {
-          setStatus("not_applied");
-          return;
-        } else {
-          setError(json.message || "Failed to load status");
-          return;
-        }
+      if (cRes.status === 401 || bRes.status === 401) {
+        await logout();
+        navigation.reset({ index: 0, routes: [{ name: "Login" }] });
+        return;
       }
 
-      const data = json.data || json;
+      const cJson = await cRes.json().catch(() => null);
+      const bJson = await bRes.json().catch(() => null);
 
-      const appStatus = data.status?.application_status; // pending | approved | rejected
-      setStatus(appStatus);
-      setMessage(data.message || "");
+      const cStatus = cRes.ok ? (cJson?.data?.status?.admin_status ?? (cJson?.data?.status?.application_status ? cJson.data.status.application_status : "not_applied")) : "not_applied";
 
-      if (appStatus === "approved") {
+      const bStatus = bRes.ok ? (bJson?.data?.status?.admin_status ?? (bJson?.data?.status?.application_status ? bJson.data.status.application_status : "not_applied")) : "not_applied";
+      console.log("here-----------4", cStatus);
+      console.log("here-----------5", bStatus);
+      setConsultantStatus(cStatus);
+      setBreederStatus(bStatus);
+      setConsultantMsg(cJson?.data?.message || "");
+      setBreederMsg(bJson?.data?.message || "");
+
+      // Auto-route if one is approved
+
+      if (bStatus === "approved" && cStatus === "approved") {
+        console.log("here-----------45");
+
+        setRoleSelector(true);
+
+        return;
+      }
+
+      if (cStatus === "approved" && bStatus !== "approved") {
+        console.log("here-----------1");
+        setRole("consultant");
+        console.log("cStatus", cStatus);
         setTimeout(() => {
           navigation.reset({
             index: 0,
@@ -61,9 +96,31 @@ const ApplicationStatusScreen = ({ navigation }) => {
               },
             ],
           });
-        }, 800);
+        }, 600);
+        return;
       }
-    } catch {
+
+      if (bStatus === "approved" && cStatus !== "approved") {
+        console.log("here-----------2");
+        setRole("breeder");
+        console.log("bStatus", bStatus);
+        setTimeout(() => {
+          navigation.reset({
+            index: 0,
+            routes: [
+              {
+                name: "MainTabs",
+                state: {
+                  index: 0,
+                  routes: [{ name: "Dashboard" }],
+                },
+              },
+            ],
+          });
+        }, 600);
+        return;
+      }
+    } catch (e) {
       setError("Something went wrong");
     } finally {
       setIsLoading(false);
@@ -104,6 +161,26 @@ const ApplicationStatusScreen = ({ navigation }) => {
     }, []),
   );
 
+  const HandleRoleSelection = (role) => {
+    console.log("role", role);
+    setRole(role);
+
+    setTimeout(() => {
+      navigation.reset({
+        index: 0,
+        routes: [
+          {
+            name: "MainTabs",
+            state: {
+              index: 0,
+              routes: [{ name: "Dashboard" }],
+            },
+          },
+        ],
+      });
+    }, 200);
+  };
+
   if (isLoading) {
     return (
       <View style={styles.loaderWrap}>
@@ -120,91 +197,126 @@ const ApplicationStatusScreen = ({ navigation }) => {
     );
   }
 
-  const renderContent = () => {
+  const getStatusIcon = (status) => {
     switch (status) {
-      case "pending":
-        return (
-          <>
-            <Ionicons name="time-outline" size={64} color="#a580e9" />
-            <Text style={styles.title}>Application Under Review</Text>
-            <Text style={styles.desc}>We’re reviewing your application. This usually takes a short while.</Text>
-            {message ? <Text style={styles.sub}>{message}</Text> : null}
-          </>
-        );
-
-      case "rejected":
-        return (
-          <>
-            <Ionicons name="close-circle-outline" size={64} color="#f44336" />
-            <Text style={styles.title}>Application Rejected</Text>
-            <Text style={styles.desc}>Unfortunately, your application was not approved.</Text>
-            {message ? <Text style={styles.sub}>{message}</Text> : null}
-
-            <TouchableOpacity style={styles.outlineBtn}>
-              <Text style={styles.outlineText}>Reapply (Coming Soon)</Text>
-            </TouchableOpacity>
-          </>
-        );
-
-      case "not_applied":
-        if (showRolePicker) {
-          return (
-            <>
-              <Ionicons name="sparkles-outline" size={64} color="#a580e9" />
-              <Text style={styles.title}>Choose Your Path</Text>
-              <Text style={styles.desc}>How would you like to join Aqua?</Text>
-
-              <View style={styles.roleWrap}>
-                {/* Consultant */}
-                <TouchableOpacity
-                  style={styles.roleCard}
-                  activeOpacity={0.9}
-                  onPress={() =>
-                    navigation.navigate("CreateBusinessProfile", {
-                      from: "status",
-                    })
-                  }
-                >
-                  <Ionicons name="briefcase-outline" size={32} color="#a580e9" />
-                  <Text style={styles.roleTitle}>Consultant</Text>
-                  <Text style={styles.roleDesc}>Offer services, manage bookings, grow your business.</Text>
-                </TouchableOpacity>
-
-                {/* Breeder (Disabled) */}
-                <View style={[styles.roleCard, styles.roleDisabled]}>
-                  <Ionicons name="fish-outline" size={32} color="#bbb" />
-                  <Text style={[styles.roleTitle, { color: "#aaa" }]}>Breeder</Text>
-                  <Text style={styles.roleDesc}>Coming soon</Text>
-                </View>
-              </View>
-            </>
-          );
-        }
-
-        return (
-          <>
-            <Ionicons name="briefcase-outline" size={64} color="#a580e9" />
-            <Text style={styles.title}>Become a Consultant</Text>
-            <Text style={styles.desc}>You haven’t applied yet. Start your journey as a provider.</Text>
-
-            <TouchableOpacity style={styles.button} onPress={() => setShowRolePicker(true)}>
-              <Text style={styles.buttonText}>Apply Now</Text>
-            </TouchableOpacity>
-          </>
-        );
-
       case "approved":
-        return (
-          <>
-            <Ionicons name="checkmark-circle-outline" size={64} color="#4caf50" />
-            <Text style={styles.title}>Approved!</Text>
-            <Text style={styles.desc}>Your consultant profile is live. Taking you to your dashboard…</Text>
-          </>
-        );
-
+        return { name: "checkmark-circle-outline", color: "#4caf50" };
+      case "pending":
+        return { name: "time-outline", color: "#a580e9" };
+      case "rejected":
+        return { name: "close-circle-outline", color: "#f44336" };
       default:
-        return null;
+        return { name: "help-circle-outline", color: "#999" };
     }
+  };
+
+  const renderContent = () => {
+    const noneApplied = consultantStatus === "not_applied" && breederStatus === "not_applied";
+
+    const showConsultantStatus = consultantStatus && consultantStatus !== "not_applied";
+    const showBreederStatus = breederStatus && breederStatus !== "not_applied";
+
+    console.log("authRole", role);
+
+    if (noneApplied && !showRolePicker) {
+      return (
+        <>
+          <Ionicons name="sparkles-outline" size={64} color="#a580e9" />
+          <Text style={styles.title}>Choose Your Path</Text>
+          <Text style={styles.desc}>How would you like to join Aqua?</Text>
+
+          <View style={styles.roleWrap}>
+            <TouchableOpacity style={styles.roleCard} onPress={() => navigation.navigate("CreateBusinessProfile")}>
+              <Ionicons name="briefcase-outline" size={32} color="#a580e9" />
+              <Text style={styles.roleTitle}>Consultant</Text>
+              <Text style={styles.roleDesc}>Offer services, manage bookings, grow your business.</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.roleCard} onPress={() => navigation.navigate("CreateBreederProfile")}>
+              <Ionicons name="fish-outline" size={32} color="#a580e9" />
+              <Text style={styles.roleTitle}>Breeder</Text>
+              <Text style={styles.roleDesc}>Sell species, manage inquiries, build your brand.</Text>
+            </TouchableOpacity>
+          </View>
+        </>
+      );
+    }
+
+    if (consultantStatus === "approved" && breederStatus === "approved") {
+      return (
+        <>
+          <Ionicons name="sparkles-outline" size={64} color="#a580e9" />
+          <Text style={styles.title}>Open As</Text>
+          <Text style={styles.desc}>Select you Role for today</Text>
+
+          <View style={styles.roleWrap}>
+            <TouchableOpacity style={styles.roleCard} onPress={() => HandleRoleSelection("consultant")}>
+              <Ionicons name="briefcase-outline" size={32} color="#a580e9" />
+              <Text style={styles.roleTitle}>Consultant</Text>
+              <Text style={styles.roleDesc}>Offer services, manage bookings, grow your business.</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.roleCard} onPress={() => HandleRoleSelection("breeder")}>
+              <Ionicons name="fish-outline" size={32} color="#a580e9" />
+              <Text style={styles.roleTitle}>Breeder</Text>
+              <Text style={styles.roleDesc}>Sell species, manage inquiries, build your brand.</Text>
+            </TouchableOpacity>
+          </View>
+        </>
+      );
+    }
+
+    return (
+      <View style={{ width: "100%", gap: 16 }}>
+        {showConsultantStatus &&
+          (() => {
+            const icon = getStatusIcon(consultantStatus);
+            return (
+              <View style={styles.card}>
+                <Ionicons name={icon.name} size={40} color={icon.color} />
+                <Text style={styles.title}>Consultant</Text>
+                <Text style={styles.desc}>{consultantStatus.toUpperCase()}</Text>
+                {!!consultantMsg && <Text style={styles.sub}>{consultantMsg}</Text>}
+              </View>
+            );
+          })()}
+
+        {showBreederStatus &&
+          (() => {
+            const icon = getStatusIcon(breederStatus);
+            return (
+              <View style={styles.card}>
+                <Ionicons name={icon.name} size={40} color={icon.color} />
+                <Text style={styles.title}>Breeder</Text>
+                <Text style={styles.desc}>{breederStatus.toUpperCase()}</Text>
+                {!!breederMsg && <Text style={styles.sub}>{breederMsg}</Text>}
+              </View>
+            );
+          })()}
+
+        <View style={styles.roleWrap}>
+          {consultantStatus == "not_applied" && (
+            <TouchableOpacity style={styles.roleCard} onPress={() => navigation.navigate("CreateBusinessProfile")}>
+              <Ionicons name="briefcase-outline" size={32} color="#a580e9" />
+              <Text style={styles.roleTitle}>Apply for Consultant</Text>
+              <Text style={styles.roleDesc}>Offer services, manage bookings, grow your business.</Text>
+            </TouchableOpacity>
+          )}
+          {breederStatus == "not_applied" && (
+            <TouchableOpacity style={styles.roleCard} onPress={() => navigation.navigate("CreateBreederProfile")}>
+              <Ionicons name="fish-outline" size={32} color="#a580e9" />
+              <Text style={styles.roleTitle}>Apply for Breeder</Text>
+              <Text style={styles.roleDesc}>Sell species, manage inquiries, build your brand.</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        <TouchableOpacity style={[styles.button, styles.logoutBtn]} onPress={handleLogout}>
+          <Ionicons name="log-out-outline" size={18} color="#fff" />
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
+      </View>
+    );
   };
 
   return (
@@ -313,4 +425,14 @@ const styles = StyleSheet.create({
     color: "#777",
     textAlign: "center",
   },
+
+  logoutBtn: {
+    backgroundColor: "#ff4d4d",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 10,
+  },
+  logoutText: { color: "#fff", fontWeight: "bold" },
 });

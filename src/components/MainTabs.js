@@ -1,32 +1,36 @@
 // MainTabs.js
-import React from "react";
+import React, { useContext } from "react";
 import { View } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { AntDesign, MaterialCommunityIcons, Entypo, Feather } from "@expo/vector-icons";
 import Header from "./header";
 import DashboardScreen from "../screens/dashboard";
-import ProductsScreen from "../screens/maintabs/products";
-import TankScanScreen from "../screens/tankScanSreen";
-import TanksScreen from "../screens/maintabs/tanks";
-import SettingsScreen from "../screens/maintabs/settings";
 
-import TanksStackNavigator from "../screens/maintabs/tanks";
 import { SafeAreaView } from "react-native-safe-area-context";
-import MarketplaceStackNavigator from "../screens/maintabs/marketplace/MarketplaceStackNavigator";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import ConsultantsScreen from "../screens/maintabs/ConsultantsScreen";
 
-import BreedersStackNavigator from "../screens/maintabs/breeders/BreedersStackNavigator";
-import ServicesScreen from "../screens/maintabs/services";
 import ServicesStackNavigator from "../screens/maintabs/servicesStack";
-import BookingsScreen from "../screens/maintabs/BookingsScreen";
+
 import BoookingStackNavigator from "../screens/maintabs/bookingStack";
 import CalendarScreen from "../screens/maintabs/CalendarScreen";
 import SettingsStackNavigator from "../screens/maintabs/settingsStack";
 
+// BreedersScreens============>
+import BreederDashboardScreen from "../screens/maintabs/breeders/BreederDashboardScreen";
+import { AuthContext } from "../authcontext";
+import BreederInquiriesScreen from "../screens/maintabs/breeders/BreederInquiriesScreen";
+import BreederAvailabilityScreen from "../screens/maintabs/breeders/BreederAvailabilityScreen";
+import BreederBadgesScreen from "../screens/maintabs/breeders/BreederBadgesScreen";
+import BreederRewardsScreen from "../screens/maintabs/breeders/BreederRewardsScreen";
+import BreederSettingsScreen from "../screens/maintabs/breeders/BreederSettingsScreen";
+import CalendarStackNavigator from "../screens/maintabs/calendarStack";
+
 const Tab = createBottomTabNavigator();
 
 export default function MainTabs() {
+  const { role } = useContext(AuthContext);
+
+  console.log("role", role);
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#000" }} edges={["bottom"]}>
       <View style={{ flex: 1 }}>
@@ -48,46 +52,31 @@ export default function MainTabs() {
         >
           <Tab.Screen
             name="Dashboard"
-            component={DashboardScreen}
+            component={role == "consultant" ? DashboardScreen : BreederDashboardScreen}
             options={{
               tabBarIcon: ({ color }) => <AntDesign name="home" size={22} color={color} />,
             }}
           />
-          {/* <Tab.Screen
-            name="Habitat"
-            component={TanksStackNavigator}
-            options={{
-              tabBarIcon: ({ color }) => <MaterialCommunityIcons name="waves" size={22} color={color} />,
-            }}
-          />
 
           <Tab.Screen
-            name="Marketplace"
-            component={MarketplaceStackNavigator}
+            name={role == "consultant" ? "Services" : "Badges"}
+            component={role == "consultant" ? ServicesStackNavigator : BreederBadgesScreen}
             options={{
-              tabBarIcon: ({ color }) => <FontAwesome5 name="store" size={22} color={color} />,
-            }}
-          /> */}
-
-          <Tab.Screen
-            name="Services"
-            component={ServicesStackNavigator}
-            options={{
-              tabBarIcon: ({ color }) => <Entypo name="cog" size={22} color={color} />,
+              tabBarIcon: ({ color }) => <MaterialCommunityIcons name={role == "consultant" ? "cog" : "shield-star-outline"} size={22} color={color} />,
             }}
           />
           <Tab.Screen
-            name="Bookings"
-            component={BoookingStackNavigator}
+            name={role == "consultant" ? "Bookings" : "Rewards"}
+            component={role == "consultant" ? BoookingStackNavigator : BreederRewardsScreen}
             options={{
-              tabBarIcon: ({ color }) => <AntDesign name="book" size={22} color={color} />,
+              tabBarIcon: ({ color }) => <MaterialCommunityIcons name={role == "consultant" ? "book" : "trophy"} size={22} color={color} />,
             }}
           />
           <Tab.Screen
-            name="Calendar"
-            component={CalendarScreen}
+            name={role == "consultant" ? "Calendar" : "Settings"}
+            component={role == "consultant" ? CalendarStackNavigator : BreederSettingsScreen}
             options={{
-              tabBarIcon: ({ color }) => <MaterialCommunityIcons name="calendar" size={22} color={color} />,
+              tabBarIcon: ({ color }) => <MaterialCommunityIcons name={role == "consultant" ? "calendar" : "cog"} size={22} color={color} />,
             }}
           />
 

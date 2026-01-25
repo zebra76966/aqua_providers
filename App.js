@@ -25,6 +25,7 @@ import { DeviceEventEmitter } from "react-native";
 import PlansScreen from "./src/screens/maintabs/PlansScreen";
 import ApplicationStatusScreen from "./src/screens/ApplicationStatusScreen";
 import CreateBusinessProfileScreen from "./src/screens/CreateBusinessProfileScreen";
+import CreateBreederProfileScreen from "./src/screens/CreateBreederProfileScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -69,6 +70,7 @@ export default function App() {
               <Stack.Screen name="Plans" component={PlansScreen} />
               <Stack.Screen name="ApplicationStatus" component={ApplicationStatusScreen} />
               <Stack.Screen name="CreateBusinessProfile" component={CreateBusinessProfileScreen} />
+              <Stack.Screen name="CreateBreederProfile" component={CreateBreederProfileScreen} />
 
               {/* <Stack.Screen name="UpdateTank" component={UpdateTankScreen} /> */}
               {/* <Stack.Screen name="AddTank" component={AddTank} /> */}

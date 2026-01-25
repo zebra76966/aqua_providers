@@ -13,7 +13,7 @@ const STORAGE_KEY = "saved_addresses_v2";
 const EMAIL_VISIBILITY_KEY = "email_visibility_v1";
 
 export default function SettingsScreen() {
-  const { logout, token } = useContext(AuthContext);
+  const { logout, token, role } = useContext(AuthContext);
   const navigation = useNavigation();
 
   // Consultants Info
@@ -357,13 +357,13 @@ export default function SettingsScreen() {
                     </Text>
                   </View>
 
-                  <Switch
+                  {/* <Switch
                     value={consultant.is_active}
                     onValueChange={(v) => {
                       // later hook to API
                       setConsultant((c) => ({ ...c, is_active: v }));
                     }}
-                  />
+                  /> */}
                 </View>
 
                 <Text style={styles.businessSub}>
@@ -371,9 +371,11 @@ export default function SettingsScreen() {
                 </Text>
 
                 <View style={styles.businessActions}>
-                  <TouchableOpacity onPress={() => navigation.navigate("Services")}>
-                    <Text style={styles.businessLink}>Manage Services</Text>
-                  </TouchableOpacity>
+                  {role == "consultant" && (
+                    <TouchableOpacity onPress={() => navigation.navigate("Services")}>
+                      <Text style={styles.businessLink}>Manage Services</Text>
+                    </TouchableOpacity>
+                  )}
 
                   <TouchableOpacity onPress={() => navigation.navigate("BusinessProfile")}>
                     <Text style={styles.businessLink}>Edit Business</Text>

@@ -1,12 +1,12 @@
+// AddServiceScreen.js
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, Animated, KeyboardAvoidingView, Platform, ScrollView, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { baseUrl } from "../../config";
 import { AuthContext } from "../../authcontext";
 
-const AddServiceScreen = ({ route, navigation }) => {
+const AddServiceScreen = ({ navigation }) => {
   const { token } = useContext(AuthContext);
-  const { service } = route.params;
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
@@ -16,17 +16,30 @@ const AddServiceScreen = ({ route, navigation }) => {
   const [duration, setDuration] = useState("60");
   const [isLoading, setIsLoading] = useState(false);
 
-  const allLabels = route.params?.allLabels || [service.label]; // pass all service labels from previous screen
-
-  const [label, setLabel] = useState(service.label || "");
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [category, setCategory] = useState(service.category || "consultation");
-
-  const categories = ["consultation", "tank", "pond"];
-
-  const filteredLabels = allLabels.filter((l) => l.toLowerCase().includes(label.toLowerCase()));
+  const [servicesList, setServicesList] = useState([]);
+  const [loadingServices, setLoadingServices] = useState(true);
+  const [label, setLabel] = useState("");
 
   useEffect(() => {
+    const loadServices = async () => {
+      try {
+        setLoadingServices(true);
+        const res = await fetch(`${baseUrl}/consultants/services/`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const json = await res.json();
+        const all = Object.values(json?.data || {}).flat();
+        setServicesList(all);
+      } catch (e) {
+        Alert.alert("Error", "Failed to load services");
+      } finally {
+        setLoadingServices(false);
+      }
+    };
+
+    loadServices();
+
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -58,7 +71,6 @@ const AddServiceScreen = ({ route, navigation }) => {
         },
         body: JSON.stringify({
           label,
-          category,
           price,
           price_unit: priceUnit,
           duration_minutes: Number(duration),
@@ -92,43 +104,22 @@ const AddServiceScreen = ({ route, navigation }) => {
             <Text style={styles.title}>Add Service</Text>
           </View>
 
-          <Text style={styles.fieldLabel}>Service Name</Text>
-          <TextInput
-            placeholder="Start typing service name..."
-            placeholderTextColor="#a580e9"
-            style={styles.input}
-            value={label}
-            onChangeText={(t) => {
-              setLabel(t);
-              setShowSuggestions(true);
-            }}
-            onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-          />
+          <Text style={styles.fieldLabel}>Select Service</Text>
 
-          {showSuggestions && filteredLabels.length > 0 && (
-            <View style={styles.suggestionBox}>
-              {filteredLabels.map((item) => (
-                <TouchableOpacity
-                  key={item}
-                  style={styles.suggestionItem}
-                  onPress={() => {
-                    setLabel(item);
-                    setShowSuggestions(false);
-                  }}
-                >
-                  <Text style={styles.suggestionText}>{item}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
-
-          <Text style={styles.fieldLabel}>Category</Text>
-          <View style={styles.dropdown}>
-            {categories.map((c) => (
-              <TouchableOpacity key={c} style={[styles.dropdownItem, category === c && styles.dropdownItemActive]} onPress={() => setCategory(c)}>
-                <Text style={[styles.dropdownText, category === c && styles.dropdownTextActive]}>{c}</Text>
-              </TouchableOpacity>
-            ))}
+          <View style={styles.card}>
+            {loadingServices ? (
+              <ActivityIndicator color="#a580e9" />
+            ) : (
+              servicesList.map((s) => {
+                const active = label === s.label;
+                return (
+                  <TouchableOpacity key={s.id} style={[styles.serviceRow, active && styles.serviceRowActive]} onPress={() => setLabel(s.label)} activeOpacity={0.85}>
+                    <Ionicons name={active ? "radio-button-on" : "radio-button-off"} size={20} color={active ? "#a580e9" : "#bbb"} />
+                    <Text style={[styles.serviceText, active && styles.serviceTextActive]}>{s.label}</Text>
+                  </TouchableOpacity>
+                );
+              })
+            )}
           </View>
 
           <TextInput placeholder="Price" placeholderTextColor="#a580e9" keyboardType="numeric" style={styles.input} value={price} onChangeText={setPrice} />
@@ -154,7 +145,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: 40,
+    paddingBottom: 150,
   },
   header: {
     flexDirection: "row",
@@ -174,16 +165,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#e7dbff",
     marginBottom: 20,
-  },
-  serviceLabel: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
-  },
-  meta: {
-    marginTop: 4,
-    fontSize: 12,
-    color: "#777",
   },
   input: {
     borderWidth: 1,
@@ -211,43 +192,23 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     marginLeft: 2,
   },
-  suggestionBox: {
-    borderWidth: 1,
-    borderColor: "#e7dbff",
-    borderRadius: 10,
-    marginBottom: 12,
-    backgroundColor: "#fff",
-    overflow: "hidden",
-  },
-  suggestionItem: {
-    padding: 10,
+  serviceRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#f0eaff",
   },
-  suggestionText: {
+  serviceRowActive: {
+    backgroundColor: "#f5efff",
+  },
+  serviceText: {
+    fontSize: 14,
     color: "#333",
   },
-  dropdown: {
-    flexDirection: "row",
-    marginBottom: 12,
-  },
-  dropdownItem: {
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "#a580e9",
-    marginRight: 8,
-  },
-  dropdownItemActive: {
-    backgroundColor: "#a580e9",
-  },
-  dropdownText: {
+  serviceTextActive: {
+    fontWeight: "700",
     color: "#a580e9",
-    fontSize: 13,
-  },
-  dropdownTextActive: {
-    color: "#004d40",
-    fontWeight: "600",
   },
 });

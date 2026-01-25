@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const [role, setRole] = useState(null);
   const [activeTankId, setActiveTankId] = useState(null);
 
   /* 🔑 Permissions */
@@ -126,6 +127,8 @@ export const AuthProvider = ({ children }) => {
         /* Auth */
         token,
         loading,
+        role,
+        setRole,
         login,
         logout,
 
