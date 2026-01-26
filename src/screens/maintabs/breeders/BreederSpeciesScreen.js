@@ -333,9 +333,9 @@ const BreederSpeciesScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
 
-          <TextInput style={styles.input} placeholder="Price Min" keyboardType="numeric" value={priceMin} onChangeText={setPriceMin} />
-          <TextInput style={styles.input} placeholder="Price Max" keyboardType="numeric" value={priceMax} onChangeText={setPriceMax} />
-          <TextInput style={styles.input} placeholder="Notes" value={notes} onChangeText={setNotes} />
+          <TextInput style={styles.input} placeholder="Price Min" placeholderTextColor="#8A8A8A" keyboardType="numeric" value={priceMin} onChangeText={setPriceMin} />
+          <TextInput style={styles.input} placeholder="Price Max" placeholderTextColor="#8A8A8A" keyboardType="numeric" value={priceMax} onChangeText={setPriceMax} />
+          <TextInput style={styles.input} placeholder="Notes" placeholderTextColor="#8A8A8A" value={notes} onChangeText={setNotes} />
 
           <TouchableOpacity style={styles.button} onPress={save} disabled={saving}>
             {saving ? <ActivityIndicator color="#004d40" /> : <Text style={styles.buttonText}>Save</Text>}
