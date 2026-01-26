@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Animated, Alert } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { AntDesign, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { baseUrl } from "../../config";
 import { AuthContext } from "../../authcontext";
@@ -94,6 +94,29 @@ const BookingsScreen = ({ navigation }) => {
     }
   };
 
+  const CompleteConsultation = async (id) => {
+    try {
+      const res = await fetch(`${baseUrl}/consultants/bookings/${id}/complete/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        Alert.alert("Error", json.message || "Action failed");
+        return;
+      }
+
+      fetchBookings();
+    } catch {
+      Alert.alert("Error", "Something went wrong");
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
@@ -152,6 +175,12 @@ const BookingsScreen = ({ navigation }) => {
 
                     {item.can_reschedule && <ActionBtn icon="calendar-outline" color="#ff9800" onPress={() => navigation.navigate("BookingDetails", { booking: item })} />}
                   </View>
+                )}
+                {item.status === "confirmed" && (
+                  <TouchableOpacity style={styles.completeBtn} activeOpacity={0.85} onPress={() => CompleteConsultation(item.id)}>
+                    <Ionicons name="checkmark-done-circle-outline" size={18} color="#fff" style={{ marginRight: 8 }} />
+                    <Text style={styles.completeBtnText}>Mark as Completed</Text>
+                  </TouchableOpacity>
                 )}
               </TouchableOpacity>
             );
@@ -261,5 +290,30 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "700",
     color: "#a580e9",
+  },
+  completeBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#69c2d4",
+    paddingVertical: 14,
+    paddingHorizontal: 18,
+    borderRadius: 14,
+    marginTop: 14,
+
+    // subtle depth
+    shadowColor: "#000",
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
+  },
+
+  completeBtnText: {
+    color: "#fff",
+    fontSize: 15,
+    fontWeight: "700",
+    flexDirection: "row",
+    alignItems: "center",
   },
 });
