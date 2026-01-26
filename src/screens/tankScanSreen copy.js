@@ -169,16 +169,16 @@ const TankScanScreen = () => {
       )}
 
       <Text style={styles.label}>Species Name</Text>
-      <TextInput style={styles.input} value={fish.metadata.species_name} onChangeText={(t) => updateField(index, "metadata.species_name", t)} />
+      <TextInput style={styles.input} value={fish.metadata.species_name} placeholderTextColor="#8A8A8A" onChangeText={(t) => updateField(index, "metadata.species_name", t)} />
 
       <Text style={styles.label}>Scientific Name</Text>
-      <TextInput style={styles.input} value={fish.metadata.species_Nomenclature} onChangeText={(t) => updateField(index, "metadata.species_Nomenclature", t)} />
+      <TextInput style={styles.input} value={fish.metadata.species_Nomenclature} placeholderTextColor="#8A8A8A" onChangeText={(t) => updateField(index, "metadata.species_Nomenclature", t)} />
 
       <Text style={styles.label}>Quantity</Text>
-      <TextInput style={styles.input} keyboardType="numeric" value={fish.quantity} onChangeText={(t) => updateField(index, "quantity", t)} />
+      <TextInput style={styles.input} keyboardType="numeric" value={fish.quantity} placeholderTextColor="#8A8A8A" onChangeText={(t) => updateField(index, "quantity", t)} />
 
       <Text style={styles.label}>Notes</Text>
-      <TextInput style={styles.input} value={fish.notes} onChangeText={(t) => updateField(index, "notes", t)} />
+      <TextInput style={styles.input} value={fish.notes} placeholderTextColor="#8A8A8A" onChangeText={(t) => updateField(index, "notes", t)} />
 
       <View style={styles.actionRow}>
         <TouchableOpacity style={styles.iconButton} onPress={() => handleRemove(index)}>
@@ -232,7 +232,7 @@ const TankScanScreen = () => {
 
     useEffect(() => {
       Animated.loop(
-        Animated.sequence([Animated.timing(scale, { toValue: 1.2, duration: 600, useNativeDriver: true }), Animated.timing(scale, { toValue: 1, duration: 600, useNativeDriver: true })])
+        Animated.sequence([Animated.timing(scale, { toValue: 1.2, duration: 600, useNativeDriver: true }), Animated.timing(scale, { toValue: 1, duration: 600, useNativeDriver: true })]),
       ).start();
     }, []);
 

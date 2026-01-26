@@ -131,16 +131,16 @@ const BusinessProfileScreen = ({ navigation }) => {
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Business Info</Text>
 
-          <TextInput editable={false} style={[styles.input, styles.readOnly]} placeholder="Company Name" value={companyName} onChangeText={setCompanyName} />
-          <TextInput editable={false} style={[styles.input, { height: 80 }, styles.readOnly]} placeholder="Short bio" value={bio} onChangeText={setBio} multiline />
+          <TextInput editable={false} style={[styles.input, styles.readOnly]} placeholderTextColor="#8A8A8A" placeholder="Company Name" value={companyName} onChangeText={setCompanyName} />
+          <TextInput editable={false} style={[styles.input, { height: 80 }, styles.readOnly]} placeholderTextColor="#8A8A8A" placeholder="Short bio" value={bio} onChangeText={setBio} multiline />
         </View>
 
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Online Presence</Text>
 
-          <TextInput editable={false} style={[styles.input, styles.readOnly]} placeholder="Website" value={website} onChangeText={setWebsite} />
-          <TextInput editable={false} style={[styles.input, styles.readOnly]} placeholder="Instagram" value={instagram} onChangeText={setInstagram} />
-          <TextInput editable={false} style={[styles.input, styles.readOnly]} placeholder="Facebook" value={facebook} onChangeText={setFacebook} />
+          <TextInput editable={false} style={[styles.input, styles.readOnly]} placeholderTextColor="#8A8A8A" placeholder="Website" value={website} onChangeText={setWebsite} />
+          <TextInput editable={false} style={[styles.input, styles.readOnly]} placeholderTextColor="#8A8A8A" placeholder="Instagram" value={instagram} onChangeText={setInstagram} />
+          <TextInput editable={false} style={[styles.input, styles.readOnly]} placeholderTextColor="#8A8A8A" placeholder="Facebook" value={facebook} onChangeText={setFacebook} />
         </View>
 
         {/* <View style={styles.card}>

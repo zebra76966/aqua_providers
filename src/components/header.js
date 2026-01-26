@@ -37,7 +37,7 @@ export default function Header() {
           <Ionicons name="rocket-outline" size={18} color="#a580e9" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.switchBtn} activeOpacity={0.85} onPress={() => navigation.navigate("ApplicationStatus")}>
+        <TouchableOpacity style={styles.switchBtn} activeOpacity={0.85} onPress={() => navigation.navigate("ApplicationStatus", { fromDashboard: true })}>
           <Ionicons name="swap-horizontal-outline" size={16} color="#004d40" />
           <Text style={styles.switchText}>Switch</Text>
         </TouchableOpacity>

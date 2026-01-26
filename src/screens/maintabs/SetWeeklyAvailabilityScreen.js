@@ -1,6 +1,6 @@
 // SetWeeklyAvailabilityScreen.js
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Animated, Alert } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Animated, Alert, Modal } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { AuthContext } from "../../authcontext";
 import { baseUrl } from "../../config";
@@ -88,7 +88,7 @@ const SetWeeklyAvailabilityScreen = ({ navigation }) => {
 
   const save = async () => {
     const slots = DAYS.map((d) => ({
-      day_of_week: d.key,
+      day_of_week: d.key - 1,
       start_time: week[d.key].start_time,
       end_time: week[d.key].end_time,
       is_available: week[d.key].is_available,
@@ -103,9 +103,9 @@ const SetWeeklyAvailabilityScreen = ({ navigation }) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ slots }),
+        body: JSON.stringify({ slots: slots }),
       });
-      console.log("res", slots);
+      console.log("res", JSON.stringify({ slots: slots }));
       const json = await res.json();
 
       if (!res.ok) throw new Error(json.message);
@@ -165,17 +165,80 @@ const SetWeeklyAvailabilityScreen = ({ navigation }) => {
   );
 };
 
-const TimeBox = ({ value, onChange }) => (
-  <TouchableOpacity
-    style={styles.timeBox}
-    onPress={() => {
-      // simple prompt-style edit for now
-      Alert.prompt("Time (HH:MM)", "", onChange, "plain-text", value);
-    }}
-  >
-    <Text style={styles.timeText}>{value}</Text>
-  </TouchableOpacity>
-);
+const TimeBox = ({ value, onChange }) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <TouchableOpacity style={styles.timeBox} onPress={() => setOpen(true)}>
+        <Text style={styles.timeText}>{value}</Text>
+      </TouchableOpacity>
+
+      <TimePickerModal visible={open} value={value} onClose={() => setOpen(false)} onConfirm={onChange} />
+    </>
+  );
+};
+
+const TimePickerModal = ({ visible, value, onClose, onConfirm }) => {
+  const [hour, setHour] = useState(parseInt(value.split(":")[0], 10));
+  const [minute, setMinute] = useState(parseInt(value.split(":")[1], 10));
+
+  const hours = Array.from({ length: 24 }, (_, i) => i);
+  const minutes = ["00", "15", "30", "45"];
+
+  useEffect(() => {
+    if (visible) {
+      const [h, m] = value.split(":");
+      setHour(parseInt(h, 10));
+      setMinute(m);
+    }
+  }, [visible]);
+
+  return (
+    <Modal visible={visible} transparent animationType="slide">
+      <View style={styles.tpOverlay}>
+        <View style={styles.tpSheet}>
+          <View style={styles.tpHeader}>
+            <Text style={styles.tpTitle}>Select Time</Text>
+            <TouchableOpacity onPress={onClose}>
+              <Ionicons name="close" size={22} />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.tpPickers}>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {hours.map((h) => (
+                <TouchableOpacity key={h} onPress={() => setHour(h)} style={[styles.tpItem, hour === h && styles.tpActive]}>
+                  <Text style={[styles.tpText, hour === h && styles.tpTextActive]}>{String(h).padStart(2, "0")}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+
+            <Text style={{ fontSize: 20, fontWeight: "700" }}>:</Text>
+
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {minutes.map((m) => (
+                <TouchableOpacity key={m} onPress={() => setMinute(m)} style={[styles.tpItem, minute === m && styles.tpActive]}>
+                  <Text style={[styles.tpText, minute === m && styles.tpTextActive]}>{m}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+
+          <TouchableOpacity
+            style={styles.tpConfirm}
+            onPress={() => {
+              onConfirm(`${String(hour).padStart(2, "0")}:${minute}`);
+              onClose();
+            }}
+          >
+            <Text style={styles.tpConfirmText}>Confirm</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
+};
 
 export default SetWeeklyAvailabilityScreen;
 
@@ -250,5 +313,61 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#004d40",
     fontWeight: "700",
+  },
+  tpOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.35)",
+    justifyContent: "flex-end",
+  },
+  tpSheet: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 16,
+    maxHeight: "60%",
+  },
+  tpHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  tpTitle: {
+    fontSize: 16,
+    fontWeight: "800",
+  },
+  tpPickers: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 16,
+    height: 160,
+  },
+  tpItem: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  tpActive: {
+    backgroundColor: "#f0eaff",
+  },
+  tpText: {
+    fontSize: 16,
+    color: "#777",
+  },
+  tpTextActive: {
+    color: "#a580e9",
+    fontWeight: "800",
+  },
+  tpConfirm: {
+    marginTop: 16,
+    backgroundColor: "#a580e9",
+    padding: 14,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  tpConfirmText: {
+    color: "#fff",
+    fontWeight: "800",
   },
 });

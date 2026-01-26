@@ -5,8 +5,9 @@ import { baseUrl } from "../config";
 import { AuthContext } from "../authcontext";
 import { useFocusEffect } from "@react-navigation/native";
 
-const ApplicationStatusScreen = ({ navigation }) => {
+const ApplicationStatusScreen = ({ navigation, route }) => {
   const { token, logout, setRole, role } = useContext(AuthContext);
+  const fromDashboard = route?.params?.fromDashboard === true;
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
@@ -79,46 +80,50 @@ const ApplicationStatusScreen = ({ navigation }) => {
         return;
       }
 
-      if (cStatus === "approved" && bStatus !== "approved") {
-        console.log("here-----------1");
-        setRole("consultant");
-        console.log("cStatus", cStatus);
-        setTimeout(() => {
-          navigation.reset({
-            index: 0,
-            routes: [
-              {
-                name: "MainTabs",
-                state: {
-                  index: 0,
-                  routes: [{ name: "Dashboard" }],
-                },
-              },
-            ],
-          });
-        }, 600);
-        return;
-      }
+      // Auto-route only if NOT coming from dashboard
+      if (!fromDashboard) {
+        if (bStatus === "approved" && cStatus === "approved") {
+          setRoleSelector(true);
+          return;
+        }
 
-      if (bStatus === "approved" && cStatus !== "approved") {
-        console.log("here-----------2");
-        setRole("breeder");
-        console.log("bStatus", bStatus);
-        setTimeout(() => {
-          navigation.reset({
-            index: 0,
-            routes: [
-              {
-                name: "MainTabs",
-                state: {
-                  index: 0,
-                  routes: [{ name: "Dashboard" }],
+        if (cStatus === "approved" && bStatus !== "approved") {
+          setRole("consultant");
+          setTimeout(() => {
+            navigation.reset({
+              index: 0,
+              routes: [
+                {
+                  name: "MainTabs",
+                  state: {
+                    index: 0,
+                    routes: [{ name: "Dashboard" }],
+                  },
                 },
-              },
-            ],
-          });
-        }, 600);
-        return;
+              ],
+            });
+          }, 600);
+          return;
+        }
+
+        if (bStatus === "approved" && cStatus !== "approved") {
+          setRole("breeder");
+          setTimeout(() => {
+            navigation.reset({
+              index: 0,
+              routes: [
+                {
+                  name: "MainTabs",
+                  state: {
+                    index: 0,
+                    routes: [{ name: "Dashboard" }],
+                  },
+                },
+              ],
+            });
+          }, 600);
+          return;
+        }
       }
     } catch (e) {
       setError("Something went wrong");

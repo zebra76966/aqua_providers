@@ -439,7 +439,7 @@ export default function SettingsScreen() {
               <View style={styles.emailRow}>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.emailLabel}>Email</Text>
-                  <TextInput style={[styles.input, styles.disabledInput]} value={email} editable={false} />
+                  <TextInput style={[styles.input, styles.disabledInput]} placeholderTextColor="#8A8A8A" value={email} editable={false} />
                 </View>
 
                 <View style={styles.emailToggle}>

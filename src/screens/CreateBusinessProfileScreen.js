@@ -176,18 +176,18 @@ const CreateBusinessProfileScreen = ({ navigation, route }) => {
           <Text style={styles.title}>{isEdit ? "Edit Business" : "Apply as Consultant"}</Text>
         </View>
 
-        <TextInput style={styles.input} placeholder="Company Name" value={companyName} onChangeText={setCompanyName} />
+        <TextInput style={styles.input} placeholder="Company Name" placeholderTextColor="#8A8A8A" value={companyName} onChangeText={setCompanyName} />
         <TextInput style={[styles.input, styles.textarea]} placeholder="Bio" multiline value={bio} onChangeText={setBio} />
 
-        <TextInput style={styles.input} placeholder="Website" value={website} onChangeText={setWebsite} />
-        <TextInput style={styles.input} placeholder="Instagram" value={instagram} onChangeText={setInstagram} />
-        <TextInput style={styles.input} placeholder="Facebook" value={facebook} onChangeText={setFacebook} />
-        <TextInput style={styles.input} placeholder="Business Phone" value={phone} onChangeText={setPhone} />
-        <TextInput style={styles.input} placeholder="Business Address" value={address} onChangeText={setAddress} />
+        <TextInput style={styles.input} placeholder="Website" placeholderTextColor="#8A8A8A" value={website} onChangeText={setWebsite} />
+        <TextInput style={styles.input} placeholder="Instagram" placeholderTextColor="#8A8A8A" value={instagram} onChangeText={setInstagram} />
+        <TextInput style={styles.input} placeholder="Facebook" placeholderTextColor="#8A8A8A" value={facebook} onChangeText={setFacebook} />
+        <TextInput style={styles.input} placeholder="Business Phone" placeholderTextColor="#8A8A8A" value={phone} onChangeText={setPhone} />
+        <TextInput style={styles.input} placeholder="Business Address" placeholderTextColor="#8A8A8A" value={address} onChangeText={setAddress} />
 
-        <TextInput style={styles.input} placeholder="Years of Experience" keyboardType="numeric" value={years} onChangeText={setYears} />
-        <TextInput style={styles.input} placeholder="Specialization" value={specialization} onChangeText={setSpecialization} />
-        <TextInput style={styles.input} placeholder="Certifications (comma separated)" value={certifications} onChangeText={setCertifications} />
+        <TextInput style={styles.input} placeholder="Years of Experience" placeholderTextColor="#8A8A8A" keyboardType="numeric" value={years} onChangeText={setYears} />
+        <TextInput style={styles.input} placeholder="Specialization" placeholderTextColor="#8A8A8A" value={specialization} onChangeText={setSpecialization} />
+        <TextInput style={styles.input} placeholder="Certifications (comma separated)" placeholderTextColor="#8A8A8A" value={certifications} onChangeText={setCertifications} />
 
         <Text style={styles.sectionTitle}>Services</Text>
         {servicesList.map((s) => (

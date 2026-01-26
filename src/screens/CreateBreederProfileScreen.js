@@ -176,24 +176,24 @@ const CreateBreederProfileScreen = ({ navigation, route }) => {
 
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Business Info</Text>
-          <TextInput style={styles.input} placeholder="Company Name" value={companyName} onChangeText={setCompanyName} />
-          <TextInput style={[styles.input, styles.textarea]} placeholder="Bio" multiline value={bio} onChangeText={setBio} />
+          <TextInput style={styles.input} placeholder="Company Name" placeholderTextColor="#8A8A8A" value={companyName} onChangeText={setCompanyName} />
+          <TextInput style={[styles.input, styles.textarea]} placeholder="Bio" placeholderTextColor="#8A8A8A" multiline value={bio} onChangeText={setBio} />
         </View>
 
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Online Presence</Text>
-          <TextInput style={styles.input} placeholder="Website" value={website} onChangeText={setWebsite} />
-          <TextInput style={styles.input} placeholder="Instagram" value={instagram} onChangeText={setInstagram} />
-          <TextInput style={styles.input} placeholder="Facebook" value={facebook} onChangeText={setFacebook} />
+          <TextInput style={styles.input} placeholder="Website" placeholderTextColor="#8A8A8A" value={website} onChangeText={setWebsite} />
+          <TextInput style={styles.input} placeholder="Instagram" placeholderTextColor="#8A8A8A" value={instagram} onChangeText={setInstagram} />
+          <TextInput style={styles.input} placeholder="Facebook" placeholderTextColor="#8A8A8A" value={facebook} onChangeText={setFacebook} />
         </View>
 
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Breeding Details</Text>
-          <TextInput style={styles.input} placeholder="Business Phone" value={phone} onChangeText={setPhone} />
-          <TextInput style={styles.input} placeholder="Business Address" value={address} onChangeText={setAddress} />
-          <TextInput style={styles.input} placeholder="Years of Experience" keyboardType="numeric" value={years} onChangeText={setYears} />
-          <TextInput style={styles.input} placeholder="Breeding Focus" value={focus} onChangeText={setFocus} />
-          <TextInput style={styles.input} placeholder="Certifications (comma separated)" value={certifications} onChangeText={setCertifications} />
+          <TextInput style={styles.input} placeholder="Business Phone" placeholderTextColor="#8A8A8A" value={phone} onChangeText={setPhone} />
+          <TextInput style={styles.input} placeholder="Business Address" placeholderTextColor="#8A8A8A" value={address} onChangeText={setAddress} />
+          <TextInput style={styles.input} placeholder="Years of Experience" placeholderTextColor="#8A8A8A" keyboardType="numeric" value={years} onChangeText={setYears} />
+          <TextInput style={styles.input} placeholder="Breeding Focus" placeholderTextColor="#8A8A8A" value={focus} onChangeText={setFocus} />
+          <TextInput style={styles.input} placeholder="Certifications (comma separated)" placeholderTextColor="#8A8A8A" value={certifications} onChangeText={setCertifications} />
         </View>
 
         <View style={styles.categoryWrap}>

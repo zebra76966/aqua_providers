@@ -96,7 +96,7 @@ const BreederDashboardScreen = ({ navigation }) => {
         <View style={styles.grid}>
           {/* <ActionCard icon={<Ionicons name="calendar-outline" size={28} color="#a580e9" />} title="Availability" desc="Set or block days" onPress={() => navigation.navigate("BreederAvailability")} /> */}
 
-          {/* <ActionCard icon={<Ionicons name="mail-unread-outline" size={28} color="#a580e9" />} title="Inquiries" desc="View & respond" onPress={() => navigation.navigate("BreederInquiries")} /> */}
+          <ActionCard icon={<Ionicons name="fish" size={28} color="#a580e9" />} title="Manage Species" desc="Update your species stock and prices" onPress={() => navigation.navigate("Species")} />
 
           <ActionCard icon={<MaterialCommunityIcons name="shield-star-outline" size={28} color="#a580e9" />} title="Badges" desc="Your achievements" onPress={() => navigation.navigate("Badges")} />
 
