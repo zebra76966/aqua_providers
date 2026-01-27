@@ -26,20 +26,24 @@ const ConsultantAvailabilityScreen = ({ navigation }) => {
       });
 
       const json = await res.json();
+
       if (!res.ok) {
         setError(json.message || "Failed to load availability");
         return;
       }
 
-      const data = json.data || {};
-      const slots = data.slots || [];
+      const slots = json.data.slots || [];
+
+      console.log("availability", slots);
 
       const weeklyMap = {};
       const blockedArr = [];
 
       slots.forEach((s) => {
-        if (s.is_recurring) {
-          const d = s.day_of_week; // 0-6 or 1-7 depending backend
+        if (s.type === "recurring" && s.status === "available") {
+          // backend sends 1–7, UI expects 0–6
+          const d = s.day_of_week - 1;
+
           if (!weeklyMap[d]) weeklyMap[d] = [];
           weeklyMap[d].push(s);
         } else {
@@ -162,8 +166,9 @@ const ConsultantAvailabilityScreen = ({ navigation }) => {
                   slots.map((s) => (
                     <View key={s.id} style={styles.slotPill}>
                       <Text style={styles.slotText}>
-                        {s.start_time} – {s.end_time}
+                        {s.start_time.slice(0, 5)} – {s.end_time.slice(0, 5)}
                       </Text>
+
                       <TouchableOpacity onPress={() => confirmDelete(s.id)}>
                         <Ionicons name="close-circle" size={16} color="#a580e9" />
                       </TouchableOpacity>
@@ -189,15 +194,17 @@ const ConsultantAvailabilityScreen = ({ navigation }) => {
           ) : (
             blocked.map((b) => (
               <View key={b.id} style={styles.blockCard}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.blockRange}>
-                    {b.day_name}, {b.date}
-                  </Text>
-                  <Text style={styles.blockTime}>
-                    {b.start_time.slice(0, 5)} → {b.end_time.slice(0, 5)} · {b.type}
-                  </Text>
-                  {!!b.reason && <Text style={styles.blockReason}>{b.reason}</Text>}
-                </View>
+                <Text style={styles.blockRange}>
+                  {b.day_name}
+                  {b.date ? `, ${b.date}` : ""}
+                </Text>
+
+                <Text style={styles.blockTime}>
+                  {b.start_time.slice(0, 5)} → {b.end_time.slice(0, 5)} · {b.type}
+                </Text>
+
+                {!!b.block_reason && <Text style={styles.blockReason}>{b.block_reason}</Text>}
+
                 <TouchableOpacity onPress={() => confirmUnblock(b.id)}>
                   <Ionicons name="lock-open-outline" size={20} color="#a580e9" />
                 </TouchableOpacity>
