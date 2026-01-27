@@ -13,7 +13,7 @@ const AddServiceScreen = ({ navigation }) => {
 
   const [price, setPrice] = useState("");
   const [priceUnit, setPriceUnit] = useState("visit");
-  const [duration, setDuration] = useState("60");
+  const [duration, setDuration] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const [servicesList, setServicesList] = useState([]);
@@ -124,7 +124,21 @@ const AddServiceScreen = ({ navigation }) => {
 
           <TextInput placeholder="Price" placeholderTextColor="#a580e9" keyboardType="numeric" style={styles.input} value={price} onChangeText={setPrice} />
 
-          <TextInput placeholder="Price Unit (e.g. visit, hour)" placeholderTextColor="#a580e9" style={styles.input} value={priceUnit} onChangeText={setPriceUnit} />
+          <Text style={styles.label}>Unit</Text>
+          <View style={styles.unitRow}>
+            {["hour", "visit", "job"].map((u) => (
+              <TouchableOpacity key={u} style={[styles.unitChip, priceUnit === u && styles.unitActive]} onPress={() => setPriceUnit(u)}>
+                <Text
+                  style={{
+                    color: priceUnit === u ? "#fff" : "#555",
+                    fontWeight: "600",
+                  }}
+                >
+                  {u}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
 
           <TextInput placeholder="Duration (minutes)" placeholderTextColor="#a580e9" keyboardType="numeric" style={styles.input} value={duration} onChangeText={setDuration} />
 
@@ -210,5 +224,24 @@ const styles = StyleSheet.create({
   serviceTextActive: {
     fontWeight: "700",
     color: "#a580e9",
+  },
+  unitRow: {
+    flexDirection: "row",
+    gap: 10,
+    marginBottom: 20,
+  },
+  unitChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: "#eee",
+  },
+  unitActive: {
+    backgroundColor: "#a580e9",
+  },
+  label: {
+    fontSize: 12,
+    color: "#666",
+    marginBottom: 6,
   },
 });

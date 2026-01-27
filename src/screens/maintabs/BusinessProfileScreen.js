@@ -32,6 +32,7 @@ const BusinessProfileScreen = ({ navigation }) => {
 
       const json = await res.json();
       const data = json?.data || json;
+      console.log("dataBusiness", data);
 
       if (data?.company_name) {
         setIsEdit(true);
