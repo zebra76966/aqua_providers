@@ -26,6 +26,7 @@ import PlansScreen from "./src/screens/maintabs/PlansScreen";
 import ApplicationStatusScreen from "./src/screens/ApplicationStatusScreen";
 import CreateBusinessProfileScreen from "./src/screens/CreateBusinessProfileScreen";
 import CreateBreederProfileScreen from "./src/screens/CreateBreederProfileScreen";
+import ResetPasswordScreen from "./src/screens/ResetPasswordScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -56,6 +57,7 @@ export default function App() {
               <Stack.Screen name="First" component={FirstScreen} />
               <Stack.Screen name="Login" component={LoginScreen} />
               <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+              <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
               <Stack.Screen name="Signup" component={SignupScreen} />
               <Stack.Screen name="tankSetup" component={TankSetupScreen} />
               <Stack.Screen name="TankScan" component={TankScanScreen} />

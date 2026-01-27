@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { baseUrl } from "../config";
 
 const ResetPasswordScreen = ({ navigation }) => {
   const [resetToken, setResetToken] = useState("");
@@ -11,11 +12,13 @@ const ResetPasswordScreen = ({ navigation }) => {
 
     setLoading(true);
     try {
-      const res = await fetch("{{base_url}}/user/password-reset/submit/", {
+      const res = await fetch(`${baseUrl}/user/password-reset/submit/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reset_token: resetToken, password }),
       });
+
+      console;
 
       if (res.ok) {
         Alert.alert("Success", "Password has been reset successfully!");

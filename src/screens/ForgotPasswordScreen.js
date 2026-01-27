@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { baseUrl } from "../config";
+import { useNavigation } from "@react-navigation/native";
 
 const ForgotPasswordScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -10,13 +12,15 @@ const ForgotPasswordScreen = ({ navigation }) => {
     setLoading(true);
 
     try {
-      const res = await fetch("{{base_url}}/user/password-reset/request/", {
+      const res = await fetch(`${baseUrl}/user/password-reset/request/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email }),
       });
+
+      console.log("res", res);
 
       if (res.ok) {
         Alert.alert("Check Your Email", "We’ve sent a password reset link to your email address.");
