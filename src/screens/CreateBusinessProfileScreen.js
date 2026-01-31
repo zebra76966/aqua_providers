@@ -189,13 +189,13 @@ const CreateBusinessProfileScreen = ({ navigation, route }) => {
         <TextInput style={styles.input} placeholder="Specialization" placeholderTextColor="#8A8A8A" value={specialization} onChangeText={setSpecialization} />
         <TextInput style={styles.input} placeholder="Certifications (comma separated)" placeholderTextColor="#8A8A8A" value={certifications} onChangeText={setCertifications} />
 
-        <Text style={styles.sectionTitle}>Services</Text>
+        {/* <Text style={styles.sectionTitle}>Services</Text>
         {servicesList.map((s) => (
           <TouchableOpacity key={s.id} style={styles.serviceRow} onPress={() => toggleService(s.id)}>
             <Ionicons name={selectedServices.includes(s.id) ? "checkbox" : "square-outline"} size={20} color="#a580e9" />
             <Text style={styles.serviceText}>{s.label}</Text>
           </TouchableOpacity>
-        ))}
+        ))} */}
 
         <View style={styles.switchRow}>
           <Text>Agree to Terms</Text>
