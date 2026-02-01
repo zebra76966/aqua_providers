@@ -288,8 +288,6 @@ export default function SettingsScreen() {
         await saveAddress(true);
       }
 
-      const token = await AsyncStorage.getItem("token");
-
       const formData = new FormData();
       formData.append("first_name", firstName ?? "");
       formData.append("last_name", lastName ?? "");
