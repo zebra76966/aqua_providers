@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, Alert, ActivityIndicator, ScrollView, Modal, Switch } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, Alert, ActivityIndicator, ScrollView, Modal, Switch, Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -281,39 +281,53 @@ export default function SettingsScreen() {
 
   /* ---------------- API UPDATE ---------------- */
   const handleUpdate = async () => {
-    if (!firstName || !lastName) return;
-
     setLoading(true);
+
     try {
       if (saveAddressToggle && address && isNewAddress()) {
         await saveAddress(true);
       }
 
       const token = await AsyncStorage.getItem("token");
-      const formData = new FormData();
-      formData.append("first_name", firstName);
-      formData.append("last_name", lastName);
-      formData.append("address", address);
-      formData.append("city", city);
-      formData.append("state", state);
-      formData.append("country", country);
-      formData.append("postal_code", postalCode);
 
-      if (profileImage) {
+      const formData = new FormData();
+      formData.append("first_name", firstName ?? "");
+      formData.append("last_name", lastName ?? "");
+      formData.append("address", address ?? "");
+      formData.append("city", city ?? "");
+      formData.append("state", state ?? "");
+      formData.append("country", country ?? "");
+      formData.append("postal_code", postalCode ?? "");
+
+      if (profileImage?.uri) {
         formData.append("profile_picture", {
-          uri: profileImage.uri,
-          name: "profile.jpg",
-          type: "image/jpeg",
+          uri: Platform.OS === "android" ? profileImage.uri : profileImage.uri.replace("file://", ""),
+          name: profileImage.fileName || "profile.jpeg",
+          type: profileImage.type || "image/jpeg",
         });
       }
 
-      await fetch(`${baseUrl}/user/profile/update/`, {
+      const response = await fetch(`${baseUrl}/user/profile/update/`, {
         method: "PUT",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         body: formData,
       });
 
+      const responseText = await response.text();
+
+      console.log("PROFILE UPDATE STATUS:", response.status);
+      console.log("PROFILE UPDATE RESPONSE:", responseText);
+
+      if (!response.ok) {
+        throw new Error(responseText || "Profile update failed");
+      }
+
       Alert.alert("Success", "Profile updated");
+    } catch (error) {
+      console.error("Profile update error:", error);
+      Alert.alert("Error", error?.message || "Something went wrong while updating profile");
     } finally {
       setLoading(false);
     }
