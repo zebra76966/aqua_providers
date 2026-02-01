@@ -95,7 +95,7 @@ const CreateBusinessProfileScreen = ({ navigation, route }) => {
   };
 
   const handleSubmit = async () => {
-    if (!companyName || !bio || !selectedServices.length) {
+    if (!companyName || !bio) {
       Alert.alert("Missing fields", "Please fill required fields");
       return;
     }
@@ -116,7 +116,7 @@ const CreateBusinessProfileScreen = ({ navigation, route }) => {
         facebook,
         business_phone: phone,
         business_address: address,
-        services: selectedServices,
+        // services: selectedServices,
         years_experience: Number(years) || 0,
         specialization,
         certifications: certifications
