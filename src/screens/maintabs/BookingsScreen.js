@@ -83,6 +83,8 @@ const BookingsScreen = ({ navigation }) => {
 
       const json = await res.json();
 
+      console.log("status Update", json);
+
       if (!res.ok) {
         Alert.alert("Error", json.message || "Action failed");
         return;
@@ -117,6 +119,53 @@ const BookingsScreen = ({ navigation }) => {
     }
   };
 
+  const getUiStatus = (item) => {
+    // Completed (past OR explicitly completed)
+    if (item.is_past || item.status === "completed") {
+      return "completed";
+    }
+
+    // Waiting on consultant
+    if (item.consultant_status === "pending") {
+      return "pending_consultant";
+    }
+
+    // Waiting on payment
+    if (item.consultant_status === "accepted" && item.payment_status !== "paid") {
+      return "pending_payment";
+    }
+
+    // Fully active
+    if (item.status === "confirmed" && item.consultant_status === "accepted" && item.payment_status === "paid") {
+      return "active";
+    }
+
+    // Fallback
+    return "pending";
+  };
+
+  const filterByTab = (items, tab) => {
+    return items.filter((item) => {
+      const uiStatus = getUiStatus(item);
+
+      if (tab === "pending") {
+        return ["pending", "pending_consultant", "pending_payment"].includes(uiStatus);
+      }
+
+      if (tab === "active") {
+        return uiStatus === "active";
+      }
+
+      if (tab === "completed") {
+        return uiStatus === "completed";
+      }
+
+      return false;
+    });
+  };
+
+  const filteredBookings = filterByTab(bookings, activeTab);
+
   return (
     <View style={styles.container}>
       <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
@@ -141,18 +190,28 @@ const BookingsScreen = ({ navigation }) => {
         </View>
       ) : (
         <FlatList
-          data={bookings}
+          data={filteredBookings}
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ paddingBottom: 140 }}
           renderItem={({ item }) => {
             const serviceLabel = item.services?.[0]?.label || "Service";
             const timeRange = `${formatDate(item.scheduled_start)} → ${formatDate(item.scheduled_end)}`;
+            const uiStatus = getUiStatus(item);
+
+            const statusLabelMap = {
+              pending_consultant: "Waiting for you",
+              pending_payment: "Awaiting payment",
+              active: "Confirmed & Paid",
+              completed: "Completed",
+              pending: "Pending",
+            };
 
             return (
               <TouchableOpacity style={styles.card} onPress={() => navigation.navigate("BookingDetails", { booking: item })}>
                 <View style={styles.cardHeader}>
                   <Text style={styles.cardTitle}>{serviceLabel}</Text>
-                  <Text style={styles.cardMeta}>{item.status}</Text>
+
+                  <Text style={styles.cardMeta}>{statusLabelMap[uiStatus]}</Text>
                 </View>
 
                 <Text style={styles.cardSub}>{timeRange}</Text>
@@ -162,22 +221,17 @@ const BookingsScreen = ({ navigation }) => {
                   <Text style={styles.price}>${item.full_price}</Text>
                 </View>
 
-                {(item.status === "pending" || item.status === "accepted") && (
+                {item.consultant_status === "pending" && (
                   <View style={styles.actions}>
-                    {item.status === "pending" && (
-                      <>
-                        <ActionBtn icon="checkmark" color="#4caf50" onPress={() => updateStatus(item.id, "confirm")} />
-                        <ActionBtn icon="close" color="#f44336" onPress={() => updateStatus(item.id, "decline")} />
-                      </>
-                    )}
-
-                    {item.can_cancel && <ActionBtn icon="trash-outline" color="#f44336" onPress={() => updateStatus(item.id, "cancel")} />}
-
-                    {item.can_reschedule && <ActionBtn icon="calendar-outline" color="#ff9800" onPress={() => navigation.navigate("BookingDetails", { booking: item })} />}
+                    <ActionBtn icon="checkmark" color="#4caf50" onPress={() => updateStatus(item.id, "confirm")} />
+                    <ActionBtn icon="close" color="#f44336" onPress={() => updateStatus(item.id, "cancel")} />
                   </View>
                 )}
-                {item.status === "confirmed" && (
-                  <TouchableOpacity style={styles.completeBtn} activeOpacity={0.85} onPress={() => CompleteConsultation(item.id)}>
+
+                {uiStatus === "pending_payment" && <Text style={styles.infoText}>Client needs to complete payment</Text>}
+
+                {uiStatus === "active" && (
+                  <TouchableOpacity style={styles.completeBtn} onPress={() => CompleteConsultation(item.id)}>
                     <Ionicons name="checkmark-done-circle-outline" size={18} color="#fff" style={{ marginRight: 8 }} />
                     <Text style={styles.completeBtnText}>Mark as Completed</Text>
                   </TouchableOpacity>
