@@ -299,9 +299,9 @@ export default function SettingsScreen() {
 
       if (profileImage?.uri) {
         formData.append("profile_picture", {
-          uri: Platform.OS === "android" ? profileImage.uri : profileImage.uri.replace("file://", ""),
-          name: profileImage.fileName || "profile.jpeg",
-          type: profileImage.type || "image/jpeg",
+          uri: profileImage.uri, // ✅ DO NOT TOUCH
+          name: "profile.jpeg", // ✅ Explicit name
+          type: "image/jpeg", // ✅ Explicit mime
         });
       }
 
