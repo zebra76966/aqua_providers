@@ -81,26 +81,18 @@ export default function SettingsScreen() {
     try {
       setBadgeLoading(true);
 
-      const [entityRes, defsRes] = await Promise.all([
-        fetch(`${baseUrl}/badges/entity/`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        fetch(`${baseUrl}/badges/definitions/`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
+      const headers = { Authorization: `Bearer ${token}` };
+
+      const [myRes, defsRes] = await Promise.all([
+        fetch(`${baseUrl}/badges/badges/me/`, { headers }).then((r) => r.json()),
+        fetch(`${baseUrl}/badges/definitions/`, { headers }).then((r) => r.json()),
       ]);
 
-      const entityJson = await entityRes.json();
-      const defsJson = await defsRes.json();
+      const myData = myRes?.data || myRes;
+      const defsData = defsRes?.data || defsRes || [];
 
-      console.log("entityJson", entityJson);
-      console.log("defsJson", defsJson);
-
-      const entity = entityJson?.data || entityJson;
-      const defs = defsJson?.data || defsJson;
-
-      setUserBadge(entity); // e.g. { code: "FOUNDING_MEMBER", level: "gold" }
-      setBadgeDefs(defs || []);
+      setUserBadge(myData?.recently_earned?.[0] || null);
+      setBadgeDefs(defsData);
     } catch (e) {
       console.log("Badge fetch error:", e);
     } finally {
@@ -188,9 +180,7 @@ export default function SettingsScreen() {
 
   const resolvedBadge = React.useMemo(() => {
     if (!userBadge || !badgeDefs.length) return null;
-
-    const entity = Array.isArray(userBadge) ? userBadge[0] : userBadge;
-    return badgeDefs.find((b) => b.badge_type === entity?.badge_type);
+    return badgeDefs.find((b) => b.badge_code === userBadge.badge_code);
   }, [userBadge, badgeDefs]);
 
   const loadEmailVisibility = async () => {

@@ -24,6 +24,7 @@ import BreederRewardsScreen from "../screens/maintabs/breeders/BreederRewardsScr
 import BreederSettingsScreen from "../screens/maintabs/breeders/BreederSettingsScreen";
 import CalendarStackNavigator from "../screens/maintabs/calendarStack";
 import SpeciesStackNavigator from "../screens/maintabs/breeders/breeedersSpeciesStack";
+import BadgesScreen from "../screens/maintabs/badges/BadgesScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -59,11 +60,21 @@ export default function MainTabs() {
             }}
           />
 
+          {role == "consultant" && (
+            <Tab.Screen
+              name={"Services"}
+              component={ServicesStackNavigator}
+              options={{
+                tabBarIcon: ({ color }) => <MaterialCommunityIcons name={"cog"} size={22} color={color} />,
+              }}
+            />
+          )}
+
           <Tab.Screen
-            name={role == "consultant" ? "Services" : "Badges"}
-            component={role == "consultant" ? ServicesStackNavigator : BreederBadgesScreen}
+            name={"Badges"}
+            component={BadgesScreen}
             options={{
-              tabBarIcon: ({ color }) => <MaterialCommunityIcons name={role == "consultant" ? "cog" : "shield-star-outline"} size={22} color={color} />,
+              tabBarIcon: ({ color }) => <MaterialCommunityIcons name={"shield-star-outline"} size={22} color={color} />,
             }}
           />
           <Tab.Screen
